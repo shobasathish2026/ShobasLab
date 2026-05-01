@@ -5,7 +5,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 // Pull latest code from GitHub
-                git 'https://github.com/shobasathish2026/ShobasLab.git'
+                git branch: 'main', url: 'https://github.com/shobasathish2026/ShobasLab.git'
             }
         }
 

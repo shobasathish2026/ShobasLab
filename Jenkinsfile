@@ -12,41 +12,41 @@ pipeline {
         stage('Build with Maven') {
             steps {
                 // Compile and package into JAR
-                sh 'mvn clean package'
+                bat 'mvn clean package'
             }
         }
 
         stage('Static Analysis') {
             steps {
                 // Run OWASP Dependency-Check (checks vulnerable libraries)
-                sh 'mvn org.owasp:dependency-check-maven:check'
+                bat 'mvn org.owasp:dependency-check-maven:check'
 
                 // Run SpotBugs (detects bugs in code)
-                sh 'mvn spotbugs:spotbugs'
+                bat 'mvn spotbugs:spotbugs'
             }
         }
 
         stage('Unit Tests') {
             steps {
                 // Run JUnit tests
-                sh 'mvn test'
+                bat 'mvn test'
             }
         }
 
         stage('Docker Build') {
             steps {
                 // Build Docker image using Docker CLI on the host
-                sh 'docker build -t insecurebankapp .'
+                bat 'docker build -t insecurebankapp .'
             }
         }
 
         stage('Dynamic Analysis') {
             steps {
                 // Run the container
-                sh 'docker run -d -p 8080:8080 --name insecurebank insecurebankapp'
+                bat 'docker run -d -p 8080:8080 --name insecurebank insecurebankapp'
 
                 // Example: OWASP ZAP scan (requires zap-cli installed in Jenkins agent)
-                sh '''
+                bat '''
                     zap-cli start --start-options "-config api.disablekey=true"
                     zap-cli quick-scan http://localhost:8080
                     zap-cli report -o zap-report.html -f html
@@ -54,8 +54,8 @@ pipeline {
                 '''
 
                 // Stop and remove container after scan
-                sh 'docker stop insecurebank || true'
-                sh 'docker rm insecurebank || true'
+                bat 'docker stop insecurebank || exit 0'
+                bat 'docker rm insecurebank || exit 0'
             }
         }
     }

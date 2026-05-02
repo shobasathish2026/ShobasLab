@@ -50,9 +50,8 @@ pipeline {
                 // Stop the app
                 bat 'taskkill /F /IM java.exe'
             }
-        }
+        } */
     }
-*/
     post {
         always {
             // Archive reports so you can view them in Jenkins

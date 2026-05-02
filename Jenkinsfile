@@ -33,19 +33,24 @@ pipeline {
             }
         }
 
-		stage('Dynamic Analysis') {
-		    steps {
-		        bat 'start /B java -jar target/InsecureBankApp-1.0.jar'
-		        bat '''
-		            zap-cli start --start-options "-config api.disablekey=true"
-		            zap-cli quick-scan http://localhost:8080
-		            zap-cli report -o zap-report.html -f html
-		            zap-cli stop
-		        '''
-		        bat 'taskkill /F /IM java.exe'
-		    }
-		}
+        stage('Dynamic Analysis') {
+            steps {
+                // Start the app
+                bat 'start "InsecureBankApp" /B java -jar target/InsecureBankApp-1.0.jar'
+                // Wait for app to start
+                bat 'ping 127.0.0.1 -n 10 > nul'
 
+                // Trigger spider and active scan via ZAP REST API
+                bat 'curl "http://localhost:8081/JSON/spider/action/scan/?url=http://localhost:8080"'
+                bat 'curl "http://localhost:8081/JSON/ascan/action/scan/?url=http://localhost:8080"'
+
+                // Generate HTML report
+                bat 'curl "http://localhost:8081/OTHER/core/other/htmlreport/" -o zap-report.html'
+
+                // Stop the app
+                bat 'taskkill /F /IM java.exe'
+            }
+        }
     }
 
     post {

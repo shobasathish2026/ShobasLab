@@ -51,6 +51,10 @@ pipeline {
                 bat 'taskkill /F /IM java.exe'
             }
         } */
+        
+}
+
+        
     }
     post {
         always {

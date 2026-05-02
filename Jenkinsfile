@@ -33,31 +33,19 @@ pipeline {
             }
         }
 
-        stage('Docker Build') {
-            steps {
-                // Build Docker image using Docker CLI on the host
-                bat 'docker build -t insecurebankapp .'
-            }
-        }
+		stage('Dynamic Analysis') {
+		    steps {
+		        bat 'start /B java -jar target/InsecureBankApp-1.0.jar'
+		        bat '''
+		            zap-cli start --start-options "-config api.disablekey=true"
+		            zap-cli quick-scan http://localhost:8080
+		            zap-cli report -o zap-report.html -f html
+		            zap-cli stop
+		        '''
+		        bat 'taskkill /F /IM java.exe'
+		    }
+		}
 
-        stage('Dynamic Analysis') {
-            steps {
-                // Run the container
-                bat 'docker run -d -p 8080:8080 --name insecurebank insecurebankapp'
-
-                // Example: OWASP ZAP scan (requires zap-cli installed in Jenkins agent)
-                bat '''
-                    zap-cli start --start-options "-config api.disablekey=true"
-                    zap-cli quick-scan http://localhost:8080
-                    zap-cli report -o zap-report.html -f html
-                    zap-cli stop
-                '''
-
-                // Stop and remove container after scan
-                bat 'docker stop insecurebank || exit 0'
-                bat 'docker rm insecurebank || exit 0'
-            }
-        }
     }
 
     post {

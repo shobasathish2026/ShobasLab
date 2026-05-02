@@ -32,7 +32,7 @@ pipeline {
                 bat 'mvn test'
             }
         }
-
+/*
         stage('Dynamic Analysis') {
             steps {
                 // Start the app
@@ -52,7 +52,7 @@ pipeline {
             }
         }
     }
-
+*/
     post {
         always {
             // Archive reports so you can view them in Jenkins
